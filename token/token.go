@@ -16,8 +16,16 @@ const (
 	INT   = "INT"
 
 	//Operators
-	ASSIGN = "="
-	PLUS   = "+"
+	ASSIGN   = "="
+	PLUS     = "+"
+	MINUS    = "-"
+	BANG     = "!"
+	ASTERISK = "*"
+	SLASH    = "/"
+	LT       = "<"
+	GT       = ">"
+	EQ       = "=="
+	NOT_EQ   = "!="
 
 	// Delimiters
 	COMMA     = ","
@@ -29,13 +37,25 @@ const (
 	RBRACE = "}"
 
 	// Keywords
-	FUNCTION = "FIELD"
-	PLAYER   = "PLAYER"
+	FUNCTION                = "FIELD"
+	PLAYER                  = "PLAYER"
+	TRUE                    = "NOT_OUT"
+	FALSE                   = "OUT"
+	APPEAL_IF               = "APPEAL_FOR_DECISION"
+	APPEALOVERTURNED_ELSEIF = "APPEAL_OVERTURNED"
+	APPEALREJECTED_ELSE     = "APPEAL_REJECTED"
+	SIGNALDECISION_RETURN   = "SIGNAL_DECISION"
 )
 
 var keywords = map[string]TokenType{
-	"field":  FUNCTION,
-	"player": PLAYER,
+	"field":            FUNCTION,
+	"player":           PLAYER,
+	"notOut":           TRUE,
+	"out":              FALSE,
+	"appeal":           APPEAL_IF,
+	"appealOverturned": APPEALOVERTURNED_ELSEIF,
+	"appealRejected":   APPEALREJECTED_ELSE,
+	"signalDecision":   SIGNALDECISION_RETURN,
 }
 
 func LookupIdent(ident string) TokenType {
