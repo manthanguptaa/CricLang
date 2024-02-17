@@ -52,6 +52,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.PLAYER:
 		return p.parsePlayerStatement()
+	case token.SIGNALDECISION_RETURN:
+		return p.parseSignalDecisionStatement()
 	default:
 		return nil
 	}
@@ -71,6 +73,17 @@ func (p *Parser) parsePlayerStatement() *ast.PlayerStatement {
 	}
 
 	// TODO: skipping the expression until we encounter a semicolon
+	for !p.curTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+	return stmt
+}
+
+func (p *Parser) parseSignalDecisionStatement() *ast.SignalDecisionStatement {
+	stmt := &ast.SignalDecisionStatement{Token: p.curToken}
+	p.nextToken()
+
+	// TODO: skipping the expressions until we encounter a semicolon
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}

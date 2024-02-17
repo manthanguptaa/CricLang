@@ -69,3 +69,31 @@ func checkParserErrors(t *testing.T, p *Parser) {
 	}
 	t.FailNow()
 }
+
+func TestSignalDecisionStatements(t *testing.T) {
+	input := `
+	signalDecision 5;
+	signalDecision 10;
+	signalDecision 1819;`
+
+	l := lexer.New(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 3 {
+		t.Fatalf("program.Statements doesn't contain 3 statements. got=%d", len(program.Statements))
+	}
+
+	for _, stmt := range program.Statements {
+		signalDecisionStmt, ok := stmt.(*ast.SignalDecisionStatement)
+		if !ok {
+			t.Errorf("stmt not *ast.SignalDecisionStatement. got=%T", stmt)
+			continue
+		}
+		if signalDecisionStmt.TokenLiteral() != "signalDecision" {
+			t.Errorf("signalDecisionStmt.TokenLiteral not 'signalDecision'. got=%q", signalDecisionStmt.TokenLiteral())
+		}
+	}
+}

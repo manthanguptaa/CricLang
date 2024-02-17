@@ -37,6 +37,14 @@ type PlayerStatement struct {
 func (ps *PlayerStatement) statementNode()       {}
 func (ps *PlayerStatement) TokenLiteral() string { return ps.Token.Literal }
 
+type SignalDecisionStatement struct {
+	Token               token.Token
+	SignalDecisionValue Expression
+}
+
+func (sds *SignalDecisionStatement) statementNode()       {}
+func (sds *SignalDecisionStatement) TokenLiteral() string { return sds.Token.Literal }
+
 type Identifier struct {
 	Token token.Token
 	Value string
