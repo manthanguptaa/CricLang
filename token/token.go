@@ -30,5 +30,17 @@ const (
 
 	// Keywords
 	FUNCTION = "FIELD"
-	LET      = "PLAYER"
+	PLAYER   = "PLAYER"
 )
+
+var keywords = map[string]TokenType{
+	"field":  FUNCTION,
+	"player": PLAYER,
+}
+
+func LookupIdent(ident string) TokenType {
+	if tok, ok := keywords[ident]; ok {
+		return tok
+	}
+	return IDENT
+}
