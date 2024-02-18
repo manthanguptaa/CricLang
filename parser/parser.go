@@ -121,7 +121,10 @@ func (p *Parser) parsePlayerStatement() *ast.PlayerStatement {
 		return nil
 	}
 
-	// TODO: skipping the expression until we encounter a semicolon
+	p.nextToken()
+
+	stmt.Value = p.parseExpression(LOWEST)
+
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
@@ -132,7 +135,7 @@ func (p *Parser) parseSignalDecisionStatement() *ast.SignalDecisionStatement {
 	stmt := &ast.SignalDecisionStatement{Token: p.curToken}
 	p.nextToken()
 
-	// TODO: skipping the expressions until we encounter a semicolon
+	stmt.SignalDecisionValue = p.parseExpression(LOWEST)
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}

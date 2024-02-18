@@ -8,32 +8,34 @@ import (
 )
 
 func TestPlayerStatement(t *testing.T) {
-	input := `player x = 5;
-	player y = 10;
-	player foobar = 838383;`
-
-	l := lexer.New(input)
-	p := New(l)
-
-	program := p.ParseProgram()
-	checkParserErrors(t, p)
-	if program == nil {
-		t.Fatalf("ParseProgram() returned nil")
-	}
-	if len(program.Statements) != 3 {
-		t.Fatalf("program.Statements doesn't contain 3 statements. got=%d", len(program.Statements))
-	}
 	tests := []struct {
+		input              string
 		expectedIdentifier string
+		expectedValue      interface{}
 	}{
-		{"x"},
-		{"y"},
-		{"foobar"},
+		{"player x = 5;", "x", 5},
+		{"player y = notOut;", "y", true},
+		{"player foobar = y;", "foobar", "y"},
 	}
 
-	for i, tt := range tests {
-		stmt := program.Statements[i]
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+				len(program.Statements))
+		}
+
+		stmt := program.Statements[0]
 		if !testPlayerStatement(t, stmt, tt.expectedIdentifier) {
+			return
+		}
+
+		val := stmt.(*ast.PlayerStatement).Value
+		if !testLiteralExpression(t, val, tt.expectedValue) {
 			return
 		}
 	}
@@ -72,29 +74,37 @@ func checkParserErrors(t *testing.T, p *Parser) {
 }
 
 func TestSignalDecisionStatements(t *testing.T) {
-	input := `
-	signalDecision 5;
-	signalDecision 10;
-	signalDecision 1819;`
-
-	l := lexer.New(input)
-	p := New(l)
-
-	program := p.ParseProgram()
-	checkParserErrors(t, p)
-
-	if len(program.Statements) != 3 {
-		t.Fatalf("program.Statements doesn't contain 3 statements. got=%d", len(program.Statements))
+	tests := []struct {
+		input         string
+		expectedValue interface{}
+	}{
+		{"signalDecision 5;", 5},
+		{"signalDecision notOut;", true},
+		{"signalDecision foobar;", "foobar"},
 	}
 
-	for _, stmt := range program.Statements {
-		signalDecisionStmt, ok := stmt.(*ast.SignalDecisionStatement)
-		if !ok {
-			t.Errorf("stmt not *ast.SignalDecisionStatement. got=%T", stmt)
-			continue
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+				len(program.Statements))
 		}
-		if signalDecisionStmt.TokenLiteral() != "signalDecision" {
-			t.Errorf("signalDecisionStmt.TokenLiteral not 'signalDecision'. got=%q", signalDecisionStmt.TokenLiteral())
+
+		stmt := program.Statements[0]
+		returnStmt, ok := stmt.(*ast.SignalDecisionStatement)
+		if !ok {
+			t.Fatalf("stmt not *ast.returnStatement. got=%T", stmt)
+		}
+		if returnStmt.TokenLiteral() != "signalDecision" {
+			t.Fatalf("returnStmt.TokenLiteral not 'signalDecision', got %q",
+				returnStmt.TokenLiteral())
+		}
+		if testLiteralExpression(t, returnStmt.SignalDecisionValue, tt.expectedValue) {
+			return
 		}
 	}
 }
