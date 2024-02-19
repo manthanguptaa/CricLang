@@ -153,3 +153,27 @@ func testNullObject(t *testing.T, obj object.Object) bool {
 	}
 	return true
 }
+
+func TestSignalDecisionReturnStatements(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"signaldecision 10;", 10},
+		{"signaldecision 10; 9", 10},
+		{"signaldecision 2 * 5; 9", 10},
+		{"9; signaldecision 10; 9", 10},
+		{`appeal (10 > 1) {
+			appeal (10 > 1) {
+				signaldecision 10;
+			}
+			signaldecision 1;
+		}
+		`, 10},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testIntegerObject(t, evaluated, tt.expected)
+	}
+}

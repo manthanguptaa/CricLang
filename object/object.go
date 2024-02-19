@@ -5,9 +5,10 @@ import "fmt"
 type ObjectType string
 
 const (
-	INTEGER_OBJ        = "INTEGER"
-	BOOLEAN_OBJ        = "BOOLEAN"
-	DEAD_BALL_NULL_OBJ = "DEAD_BALL"
+	INTEGER_OBJ                     = "INTEGER"
+	BOOLEAN_OBJ                     = "BOOLEAN"
+	DEAD_BALL_NULL_OBJ              = "DEAD_BALL"
+	SIGNALDECISION_RETURN_VALUE_OBJ = "SIGNALDECISION"
 )
 
 type Object interface {
@@ -33,3 +34,10 @@ type DeadBallNull struct{}
 
 func (n *DeadBallNull) Type() ObjectType { return DEAD_BALL_NULL_OBJ }
 func (n *DeadBallNull) Inspect() string  { return "deadball" }
+
+type SignalDecisionReturnValue struct {
+	Value Object
+}
+
+func (sdr *SignalDecisionReturnValue) Type() ObjectType { return SIGNALDECISION_RETURN_VALUE_OBJ }
+func (sdr *SignalDecisionReturnValue) Inspect() string  { return sdr.Value.Inspect() }
