@@ -120,3 +120,36 @@ func TestBangOperator(t *testing.T) {
 		testBooleanObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestAppealAppealRejectedExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"appeal (notout) { 10 }", 10},
+		{"appeal (out) { 10 }", nil},
+		{"appeal (1) { 10 }", 10},
+		{"appeal (1 < 2) { 10 }", 10},
+		{"appeal (1 > 2) { 10 }", nil},
+		{"appeal (1 > 2) { 10 } appealrejected { 20 }", 20},
+		{"appeal (1 < 2) { 10 } appealrejected { 20 }", 10},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		integer, ok := tt.expected.(int)
+		if ok {
+			testIntegerObject(t, evaluated, int64(integer))
+		} else {
+			testNullObject(t, evaluated)
+		}
+	}
+}
+
+func testNullObject(t *testing.T, obj object.Object) bool {
+	if obj != DEAD_BALL {
+		t.Errorf("object is not null. got=%T(%+v)", obj, obj)
+		return false
+	}
+	return true
+}
