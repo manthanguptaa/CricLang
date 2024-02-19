@@ -6,8 +6,9 @@ import (
 )
 
 var (
-	NOT_OUT = &object.Boolean{Value: true}
-	OUT     = &object.Boolean{Value: false}
+	NOT_OUT   = &object.Boolean{Value: true}
+	OUT       = &object.Boolean{Value: false}
+	DEAD_BALL = &object.DeadBallNull{}
 )
 
 func Eval(node ast.Node) object.Object {
