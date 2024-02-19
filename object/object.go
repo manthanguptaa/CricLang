@@ -32,4 +32,4 @@ func (b *Boolean) Inspect() string  { return fmt.Sprintf("%t", b.Value) }
 type DeadBallNull struct{}
 
 func (n *DeadBallNull) Type() ObjectType { return DEAD_BALL_NULL_OBJ }
-func (n *DeadBallNull) Inspect() string  { return "deadBall" }
+func (n *DeadBallNull) Inspect() string  { return "deadball" }
