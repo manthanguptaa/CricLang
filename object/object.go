@@ -9,6 +9,7 @@ const (
 	BOOLEAN_OBJ                     = "BOOLEAN"
 	DEAD_BALL_NULL_OBJ              = "DEAD_BALL"
 	SIGNALDECISION_RETURN_VALUE_OBJ = "SIGNALDECISION"
+	MISFIELD_ERROR_OBJECT           = "MISFIELD"
 )
 
 type Object interface {
@@ -41,3 +42,10 @@ type SignalDecisionReturnValue struct {
 
 func (sdr *SignalDecisionReturnValue) Type() ObjectType { return SIGNALDECISION_RETURN_VALUE_OBJ }
 func (sdr *SignalDecisionReturnValue) Inspect() string  { return sdr.Value.Inspect() }
+
+type Misfield struct {
+	Message string
+}
+
+func (m *Misfield) Type() ObjectType { return MISFIELD_ERROR_OBJECT }
+func (m *Misfield) Inspect() string  { return "MISFIELD: " + m.Message }

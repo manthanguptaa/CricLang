@@ -3,6 +3,7 @@ package evaluator
 import (
 	"CricLang/ast"
 	"CricLang/object"
+	"fmt"
 )
 
 var (
@@ -23,10 +24,19 @@ func Eval(node ast.Node) object.Object {
 		return nativeBoolToBooleanObject(node.Value)
 	case *ast.PrefixExpression:
 		right := Eval(node.Right)
+		if isMisfield(right) {
+			return right
+		}
 		return evalPrefixExpression(node.Operator, right)
 	case *ast.InfixExpression:
 		left := Eval(node.Left)
+		if isMisfield(left) {
+			return left
+		}
 		right := Eval(node.Right)
+		if isMisfield(right) {
+			return right
+		}
 		return evalInfixExpression(node.Operator, left, right)
 	case *ast.BlockStatement:
 		return evalBlockStatement(node)
@@ -34,6 +44,9 @@ func Eval(node ast.Node) object.Object {
 		return evalAppealIfExpression(node)
 	case *ast.SignalDecisionStatement:
 		val := Eval(node.SignalDecisionValue)
+		if isMisfield(val) {
+			return val
+		}
 		return &object.SignalDecisionReturnValue{Value: val}
 	}
 	return nil
@@ -45,8 +58,11 @@ func evalProgram(program *ast.Program) object.Object {
 	for _, statement := range program.Statements {
 		result = Eval(statement)
 
-		if returnVal, ok := result.(*object.SignalDecisionReturnValue); ok {
-			return returnVal.Value
+		switch result := result.(type) {
+		case *object.SignalDecisionReturnValue:
+			return result.Value
+		case *object.Misfield:
+			return result
 		}
 	}
 	return result
@@ -58,8 +74,11 @@ func evalBlockStatement(block *ast.BlockStatement) object.Object {
 	for _, statement := range block.Statements {
 		result = Eval(statement)
 
-		if result != nil && result.Type() == object.SIGNALDECISION_RETURN_VALUE_OBJ {
-			return result
+		if result != nil {
+			rt := result.Type()
+			if rt == object.SIGNALDECISION_RETURN_VALUE_OBJ || rt == object.MISFIELD_ERROR_OBJECT {
+				return result
+			}
 		}
 	}
 	return result
@@ -79,7 +98,7 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 	case "-":
 		return evalMinusOperatorExpression(right)
 	default:
-		return DEAD_BALL
+		return newMisfield("unknown player type: %s%s", operator, right.Type())
 	}
 }
 
@@ -98,7 +117,7 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 
 func evalMinusOperatorExpression(right object.Object) object.Object {
 	if right.Type() != object.INTEGER_OBJ {
-		return DEAD_BALL
+		return newMisfield("unknown operator team: -%s", right.Type())
 	}
 
 	value := right.(*object.Integer).Value
@@ -109,12 +128,14 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	switch {
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
+	case left.Type() != right.Type():
+		return newMisfield("player type mismatch: %s %s %s", left.Type(), operator, right.Type())
 	case operator == "==":
 		return nativeBoolToBooleanObject(left == right)
 	case operator == "!=":
 		return nativeBoolToBooleanObject(left != right)
 	default:
-		return DEAD_BALL
+		return newMisfield("unknown operator team: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
@@ -140,12 +161,15 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	case "!=":
 		return nativeBoolToBooleanObject(leftVal != rightVal)
 	default:
-		return DEAD_BALL
+		return newMisfield("unknown operator team: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
 func evalAppealIfExpression(ie *ast.AppealIfExpression) object.Object {
 	condition := Eval(ie.Condition)
+	if isMisfield(condition) {
+		return condition
+	}
 
 	if isTruthy(condition) {
 		return Eval(ie.Consequence)
@@ -167,4 +191,15 @@ func isTruthy(obj object.Object) bool {
 	default:
 		return true
 	}
+}
+
+func newMisfield(format string, a ...interface{}) *object.Misfield {
+	return &object.Misfield{Message: fmt.Sprintf(format, a...)}
+}
+
+func isMisfield(obj object.Object) bool {
+	if obj != nil {
+		return obj.Type() == object.MISFIELD_ERROR_OBJECT
+	}
+	return false
 }

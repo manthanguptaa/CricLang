@@ -177,3 +177,40 @@ func TestSignalDecisionReturnStatements(t *testing.T) {
 		testIntegerObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestMisfieldHandling(t *testing.T) {
+	tests := []struct {
+		input           string
+		expectedMessage string
+	}{
+		{"5 + notout;", "player type mismatch: INTEGER + BOOLEAN"},
+		{"5 + notout; 5;", "player type mismatch: INTEGER + BOOLEAN"},
+		{"-notout", "unknown operator team: -BOOLEAN"},
+		{"notout + out;", "unknown operator team: BOOLEAN + BOOLEAN"},
+		{"5; notout + out; 5", "unknown operator team: BOOLEAN + BOOLEAN"},
+		{"appeal (10 > 1) { notout + out; }", "unknown operator team: BOOLEAN + BOOLEAN"},
+		{`
+			if (10 > 1) {
+				if (10 > 1) {
+					signaldecision notout + out;
+				}
+				signaldecision 1;
+			}`, "unknown operator team: BOOLEAN + BOOLEAN"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+
+		errObj, ok := evaluated.(*object.Misfield)
+		if !ok {
+			t.Errorf("no error object returned. got=%T(%+v)",
+				evaluated, evaluated)
+			continue
+		}
+
+		if errObj.Message != tt.expectedMessage {
+			t.Errorf("wrong error message. expected=%q, got=%q",
+				tt.expectedMessage, errObj.Message)
+		}
+	}
+}
