@@ -17,9 +17,9 @@ func TestNextToken(t *testing.T) {
 	5 < 10 > 5;
 
 	appeal (5 < 10) {
-		signalDecision notOut;
-	} appealRejected {
-		signalDecision out;
+		signaldecision notout;
+	} appealrejected {
+		signaldecision out;
 	}
 
 	10 == 10;
@@ -85,13 +85,13 @@ func TestNextToken(t *testing.T) {
 		{token.INT, "10"},
 		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
-		{token.SIGNALDECISION_RETURN, "signalDecision"},
-		{token.TRUE, "notOut"},
+		{token.SIGNALDECISION_RETURN, "signaldecision"},
+		{token.TRUE, "notout"},
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
-		{token.APPEALREJECTED_ELSE, "appealRejected"},
+		{token.APPEALREJECTED_ELSE, "appealrejected"},
 		{token.LBRACE, "{"},
-		{token.SIGNALDECISION_RETURN, "signalDecision"},
+		{token.SIGNALDECISION_RETURN, "signaldecision"},
 		{token.FALSE, "out"},
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},

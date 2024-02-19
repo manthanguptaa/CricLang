@@ -14,7 +14,7 @@ func TestPlayerStatement(t *testing.T) {
 		expectedValue      interface{}
 	}{
 		{"player x = 5;", "x", 5},
-		{"player y = notOut;", "y", true},
+		{"player y = notout;", "y", true},
 		{"player foobar = y;", "foobar", "y"},
 	}
 
@@ -78,9 +78,9 @@ func TestSignalDecisionStatements(t *testing.T) {
 		input         string
 		expectedValue interface{}
 	}{
-		{"signalDecision 5;", 5},
-		{"signalDecision notOut;", true},
-		{"signalDecision foobar;", "foobar"},
+		{"signaldecision 5;", 5},
+		{"signaldecision notout;", true},
+		{"signaldecision foobar;", "foobar"},
 	}
 
 	for _, tt := range tests {
@@ -99,8 +99,8 @@ func TestSignalDecisionStatements(t *testing.T) {
 		if !ok {
 			t.Fatalf("stmt not *ast.returnStatement. got=%T", stmt)
 		}
-		if returnStmt.TokenLiteral() != "signalDecision" {
-			t.Fatalf("returnStmt.TokenLiteral not 'signalDecision', got %q",
+		if returnStmt.TokenLiteral() != "signaldecision" {
+			t.Fatalf("returnStmt.TokenLiteral not 'signaldecision', got %q",
 				returnStmt.TokenLiteral())
 		}
 		if testLiteralExpression(t, returnStmt.SignalDecisionValue, tt.expectedValue) {
@@ -176,7 +176,7 @@ func TestPrefixExpressions(t *testing.T) {
 	}{
 		{"!5;", "!", 5},
 		{"-15;", "-", 15},
-		{"!notOut;", "!", true},
+		{"!notout;", "!", true},
 		{"!out;", "!", false},
 	}
 
@@ -244,8 +244,8 @@ func TestParsingInfixExpressions(t *testing.T) {
 		{"5 < 5;", 5, "<", 5},
 		{"5 == 5;", 5, "==", 5},
 		{"5 != 5;", 5, "!=", 5},
-		{"notOut == notOut", true, "==", true},
-		{"notOut != out", true, "!=", false},
+		{"notout == notout", true, "==", true},
+		{"notout != out", true, "!=", false},
 		{"out == out", false, "==", false},
 	}
 
@@ -336,8 +336,8 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
 		},
 		{
-			"notOut",
-			"notOut",
+			"notout",
+			"notout",
 		},
 		{
 			"out",
@@ -348,8 +348,8 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"((3 > 5) == out)",
 		},
 		{
-			"3 < 5 == notOut",
-			"((3 < 5) == notOut)",
+			"3 < 5 == notout",
+			"((3 < 5) == notout)",
 		},
 		{
 			"1 + (2 + 3) + 4",
@@ -372,8 +372,8 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"(-(5 + 5))",
 		},
 		{
-			"!(notOut == notOut)",
-			"(!(notOut == notOut))",
+			"!(notout == notout)",
+			"(!(notout == notout))",
 		},
 		{
 			"a + add(b * c) + d",
@@ -471,7 +471,7 @@ func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
 	}
 	var compare string
 	if value {
-		compare = "notOut"
+		compare = "notout"
 	} else {
 		compare = "out"
 	}
@@ -488,7 +488,7 @@ func TestBooleanExpression(t *testing.T) {
 		input           string
 		expectedBoolean bool
 	}{
-		{"notOut;", true},
+		{"notout;", true},
 		{"out;", false},
 	}
 
@@ -565,7 +565,7 @@ func TestIfStatement(t *testing.T) {
 }
 
 func TestIfElseExpression(t *testing.T) {
-	input := `appeal (x < y) { x } appealRejected { y }`
+	input := `appeal (x < y) { x } appealrejected { y }`
 
 	l := lexer.New(input)
 	p := New(l)

@@ -48,7 +48,7 @@ func TestEvalBooleanExpression(t *testing.T) {
 		input    string
 		expected bool
 	}{
-		{"notOut", true},
+		{"notout", true},
 		{"out", false},
 	}
 

@@ -50,12 +50,12 @@ const (
 var keywords = map[string]TokenType{
 	"field":            FUNCTION,
 	"player":           PLAYER,
-	"notOut":           TRUE,
+	"notout":           TRUE,
 	"out":              FALSE,
 	"appeal":           APPEAL_IF,
-	"appealOverturned": APPEALOVERTURNED_ELSEIF,
-	"appealRejected":   APPEALREJECTED_ELSE,
-	"signalDecision":   SIGNALDECISION_RETURN,
+	"appealoverturned": APPEALOVERTURNED_ELSEIF,
+	"appealrejected":   APPEALREJECTED_ELSE,
+	"signaldecision":   SIGNALDECISION_RETURN,
 }
 
 func LookupIdent(ident string) TokenType {
