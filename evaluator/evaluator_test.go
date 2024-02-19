@@ -39,8 +39,9 @@ func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
 	program := p.ParseProgram()
+	env := object.NewEnvironment()
 
-	return Eval(program)
+	return Eval(program, env)
 }
 
 func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
@@ -196,6 +197,7 @@ func TestMisfieldHandling(t *testing.T) {
 				}
 				signaldecision 1;
 			}`, "unknown operator team: BOOLEAN + BOOLEAN"},
+		{"foobar", "identifier not found: foobar"},
 	}
 
 	for _, tt := range tests {
@@ -212,5 +214,21 @@ func TestMisfieldHandling(t *testing.T) {
 			t.Errorf("wrong error message. expected=%q, got=%q",
 				tt.expectedMessage, errObj.Message)
 		}
+	}
+}
+
+func TestPlayerStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"player a = 5; a;", 5},
+		{"player a = 5 * 5; a;", 25},
+		{"player a = 5; player b = a; b;", 5},
+		{"player a = 5; player b = a; player c = a + b + 5; c;", 15},
+	}
+
+	for _, tt := range tests {
+		testIntegerObject(t, testEval(tt.input), tt.expected)
 	}
 }

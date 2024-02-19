@@ -12,51 +12,59 @@ var (
 	DEAD_BALL = &object.DeadBallNull{}
 )
 
-func Eval(node ast.Node) object.Object {
+func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalProgram(node)
+		return evalProgram(node, env)
 	case *ast.ExpressionStatement:
-		return Eval(node.Expression)
+		return Eval(node.Expression, env)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value)
 	case *ast.PrefixExpression:
-		right := Eval(node.Right)
+		right := Eval(node.Right, env)
 		if isMisfield(right) {
 			return right
 		}
 		return evalPrefixExpression(node.Operator, right)
 	case *ast.InfixExpression:
-		left := Eval(node.Left)
+		left := Eval(node.Left, env)
 		if isMisfield(left) {
 			return left
 		}
-		right := Eval(node.Right)
+		right := Eval(node.Right, env)
 		if isMisfield(right) {
 			return right
 		}
 		return evalInfixExpression(node.Operator, left, right)
 	case *ast.BlockStatement:
-		return evalBlockStatement(node)
+		return evalBlockStatement(node, env)
 	case *ast.AppealIfExpression:
-		return evalAppealIfExpression(node)
+		return evalAppealIfExpression(node, env)
 	case *ast.SignalDecisionStatement:
-		val := Eval(node.SignalDecisionValue)
+		val := Eval(node.SignalDecisionValue, env)
 		if isMisfield(val) {
 			return val
 		}
 		return &object.SignalDecisionReturnValue{Value: val}
+	case *ast.PlayerStatement:
+		val := Eval(node.Value, env)
+		if isMisfield(val) {
+			return val
+		}
+		env.Set(node.Name.Value, val)
+	case *ast.Identifier:
+		return evalIdentifier(node, env)
 	}
 	return nil
 }
 
-func evalProgram(program *ast.Program) object.Object {
+func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 	var result object.Object
 
 	for _, statement := range program.Statements {
-		result = Eval(statement)
+		result = Eval(statement, env)
 
 		switch result := result.(type) {
 		case *object.SignalDecisionReturnValue:
@@ -68,11 +76,11 @@ func evalProgram(program *ast.Program) object.Object {
 	return result
 }
 
-func evalBlockStatement(block *ast.BlockStatement) object.Object {
+func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) object.Object {
 	var result object.Object
 
 	for _, statement := range block.Statements {
-		result = Eval(statement)
+		result = Eval(statement, env)
 
 		if result != nil {
 			rt := result.Type()
@@ -165,16 +173,16 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	}
 }
 
-func evalAppealIfExpression(ie *ast.AppealIfExpression) object.Object {
-	condition := Eval(ie.Condition)
+func evalAppealIfExpression(ie *ast.AppealIfExpression, env *object.Environment) object.Object {
+	condition := Eval(ie.Condition, env)
 	if isMisfield(condition) {
 		return condition
 	}
 
 	if isTruthy(condition) {
-		return Eval(ie.Consequence)
+		return Eval(ie.Consequence, env)
 	} else if ie.Alternative != nil {
-		return Eval(ie.Alternative)
+		return Eval(ie.Alternative, env)
 	} else {
 		return DEAD_BALL
 	}
@@ -202,4 +210,12 @@ func isMisfield(obj object.Object) bool {
 		return obj.Type() == object.MISFIELD_ERROR_OBJECT
 	}
 	return false
+}
+
+func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
+	val, ok := env.Get(node.Value)
+	if !ok {
+		return newMisfield("identifier not found: " + node.Value)
+	}
+	return val
 }
