@@ -56,6 +56,20 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		env.Set(node.Name.Value, val)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
+	case *ast.FieldLiteral:
+		params := node.Parameters
+		body := node.Body
+		return &object.Field{Parameters: params, Env: env, Body: body}
+	case *ast.CallExpression:
+		function := Eval(node.Function, env)
+		if isMisfield(function) {
+			return function
+		}
+		args := evalExpressions(node.Arguments, env)
+		if len(args) == 1 && isMisfield(args[0]) {
+			return args[0]
+		}
+		return applyField(function, args)
 	}
 	return nil
 }
@@ -218,4 +232,44 @@ func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object
 		return newMisfield("identifier not found: " + node.Value)
 	}
 	return val
+}
+
+func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Object {
+	var result []object.Object
+
+	for _, e := range exps {
+		evaluated := Eval(e, env)
+		if isMisfield(evaluated) {
+			return []object.Object{evaluated}
+		}
+		result = append(result, evaluated)
+	}
+
+	return result
+}
+
+func applyField(fn object.Object, args []object.Object) object.Object {
+	function, ok := fn.(*object.Field)
+	if !ok {
+		return newMisfield("not a field: %s", fn.Type())
+	}
+	extendedEnv := extendFunctionEnv(function, args)
+	evaluated := Eval(function.Body, extendedEnv)
+	return unwrapSignalDecisionValue(evaluated)
+}
+
+func extendFunctionEnv(fn *object.Field, args []object.Object) *object.Environment {
+	env := object.NewEnclosedEnvironment(fn.Env)
+
+	for paramIdx, param := range fn.Parameters {
+		env.Set(param.Value, args[paramIdx])
+	}
+	return env
+}
+
+func unwrapSignalDecisionValue(obj object.Object) object.Object {
+	if signalDecisionValue, ok := obj.(*object.SignalDecisionReturnValue); ok {
+		return signalDecisionValue.Value
+	}
+	return obj
 }

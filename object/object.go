@@ -1,6 +1,11 @@
 package object
 
-import "fmt"
+import (
+	"CricLang/ast"
+	"bytes"
+	"fmt"
+	"strings"
+)
 
 type ObjectType string
 
@@ -10,6 +15,7 @@ const (
 	DEAD_BALL_NULL_OBJ              = "DEAD_BALL"
 	SIGNALDECISION_RETURN_VALUE_OBJ = "SIGNALDECISION"
 	MISFIELD_ERROR_OBJECT           = "MISFIELD"
+	FIELD_FUNCTION_OBJECT           = "FIELD"
 )
 
 type Object interface {
@@ -49,3 +55,29 @@ type Misfield struct {
 
 func (m *Misfield) Type() ObjectType { return MISFIELD_ERROR_OBJECT }
 func (m *Misfield) Inspect() string  { return "MISFIELD: " + m.Message }
+
+type Field struct {
+	Parameters []*ast.Identifier
+	Body       *ast.BlockStatement
+	Env        *Environment
+}
+
+func (f *Field) Type() ObjectType { return FIELD_FUNCTION_OBJECT }
+func (f *Field) Inspect() string {
+	var out bytes.Buffer
+
+	params := []string{}
+
+	for _, p := range f.Parameters {
+		params = append(params, p.String())
+	}
+
+	out.WriteString("field")
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") {\n")
+	out.WriteString(f.Body.String())
+	out.WriteString("\n}")
+
+	return out.String()
+}

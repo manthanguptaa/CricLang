@@ -191,8 +191,8 @@ func TestMisfieldHandling(t *testing.T) {
 		{"5; notout + out; 5", "unknown operator team: BOOLEAN + BOOLEAN"},
 		{"appeal (10 > 1) { notout + out; }", "unknown operator team: BOOLEAN + BOOLEAN"},
 		{`
-			if (10 > 1) {
-				if (10 > 1) {
+			appeal (10 > 1) {
+				appeal (10 > 1) {
 					signaldecision notout + out;
 				}
 				signaldecision 1;
@@ -231,4 +231,57 @@ func TestPlayerStatement(t *testing.T) {
 	for _, tt := range tests {
 		testIntegerObject(t, testEval(tt.input), tt.expected)
 	}
+}
+
+func TestFieldObject(t *testing.T) {
+	input := "field(x) {x + 2};"
+
+	evaluated := testEval(input)
+	fn, ok := evaluated.(*object.Field)
+	if !ok {
+		t.Fatalf("object isn't field. got=%T (%+v)", evaluated, evaluated)
+	}
+
+	if len(fn.Parameters) != 1 {
+		t.Fatalf("field has wrong parameters. Paramaters=%+v", fn.Parameters)
+	}
+
+	if fn.Parameters[0].String() != "x" {
+		t.Fatalf("parameter isn't 'x'. got=%q", fn.Parameters[0])
+	}
+
+	expectedBody := "(x + 2)"
+	if fn.Body.String() != expectedBody {
+		t.Fatalf("body is not %q. got=%q", expectedBody, fn.Body.String())
+	}
+}
+
+func TestFieldApplication(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"player identity = field(x) {x;}; identity(5);", 5},
+		{"player identity = field(x) {signaldecision x;}; identity(5);", 5},
+		{"player double = field(x) {x*2;}; double(5);", 10},
+		{"player add = field(x, y) {x + y;}; add(5, 5);", 10},
+		{"player add = field(x, y) {x + y;}; add(5+5, add(5, 5));", 20},
+		{"field(x) {x;}(5)", 5},
+	}
+
+	for _, tt := range tests {
+		testIntegerObject(t, testEval(tt.input), tt.expected)
+	}
+}
+
+func TestClosures(t *testing.T) {
+	input := `
+		player newAdder = field(x){
+			field(y){x + y;}
+		};
+
+		player addTwo = newAdder(2);
+		addTwo(2);
+	`
+	testIntegerObject(t, testEval(input), 4)
 }
