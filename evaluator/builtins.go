@@ -3,6 +3,7 @@ package evaluator
 import (
 	"CricLang/object"
 	"fmt"
+	"log"
 	"math/rand"
 )
 
@@ -27,6 +28,16 @@ var builtins = map[string]*object.Builtin{
 			}
 			fmt.Printf("Interviewer: %v or %v\n", args[0].Inspect(), args[1].Inspect())
 			return returnRandomValue()
+		},
+	},
+	"kohli": &object.Builtin{
+		Fn: func(args ...object.Object) object.Object {
+			message := "shaam tak khelenge, inki G phatt jaayegi lekin abhi tera code phatt gaya"
+			for _, arg := range args {
+				message += " " + arg.Inspect()
+			}
+			log.Fatalf(message)
+			return &object.String{}
 		},
 	},
 }
