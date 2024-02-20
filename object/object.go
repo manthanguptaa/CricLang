@@ -16,6 +16,7 @@ const (
 	SIGNALDECISION_RETURN_VALUE_OBJ = "SIGNALDECISION"
 	MISFIELD_ERROR_OBJECT           = "MISFIELD"
 	FIELD_FUNCTION_OBJECT           = "FIELD"
+	STRING_OBJ                      = "STRING"
 )
 
 type Object interface {
@@ -81,3 +82,10 @@ func (f *Field) Inspect() string {
 
 	return out.String()
 }
+
+type String struct {
+	Value string
+}
+
+func (s *String) Type() ObjectType { return STRING_OBJ }
+func (s *String) Inspect() string  { return s.Value }
