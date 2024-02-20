@@ -314,3 +314,30 @@ func TestStringConcatenation(t *testing.T) {
 		t.Errorf("String has wrong value. got=%q", str.Value)
 	}
 }
+
+// func TestBuiltinFields(t *testing.T) {
+// 	tests := []struct {
+// 		input    string
+// 		expected interface{}
+// 	}{
+// 		{`thala("")`, &object.String{Value: "Captain Cool: 0"}},
+// 		{`thala("four")`, &object.String{Value: "Captain Cool: 4"}},
+// 		{`thala("hello world")`, &object.String{Value: "Captain Cool: 11"}},
+// 		{`thala(1)`, "girlfriend se raat mei baat kar lena, pehle sahi type ka argument toh daal de"},
+// 		{`thala("one", "two")`, "girlfriend se raat mei baat kar lena, pehle 2 ki jagah 1 argument daal de"},
+// 		{`thala("seventh")`, &object.String{Value: "Thala for a reason: 7"}},
+// 	}
+
+// 	for _, tt := range tests {
+// 		evaluated := testEval(tt.input)
+
+// 		misfieldObj, ok := evaluated.(*object.Misfield)
+// 		if !ok {
+// 			t.Errorf("object is not misfield. got=%T (%+v)", evaluated, evaluated)
+// 			continue
+// 		}
+// 		if misfieldObj.Message != tt.expected.Value {
+// 			t.Errorf("wrong message. expected=%q, got=%q", tt.expected, misfieldObj.Message)
+// 		}
+// 	}
+// }

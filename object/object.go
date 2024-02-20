@@ -17,6 +17,7 @@ const (
 	MISFIELD_ERROR_OBJECT           = "MISFIELD"
 	FIELD_FUNCTION_OBJECT           = "FIELD"
 	STRING_OBJ                      = "STRING"
+	BUILTIN_OBJ                     = "BUILTIN"
 )
 
 type Object interface {
@@ -89,3 +90,12 @@ type String struct {
 
 func (s *String) Type() ObjectType { return STRING_OBJ }
 func (s *String) Inspect() string  { return s.Value }
+
+type BuiltinField func(args ...Object) Object
+
+type Builtin struct {
+	Fn BuiltinField
+}
+
+func (b *Builtin) Type() ObjectType { return BUILTIN_OBJ }
+func (b *Builtin) Inspect() string  { return "builtin field" }
