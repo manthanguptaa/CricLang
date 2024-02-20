@@ -14,6 +14,8 @@ var builtins = map[string]*object.Builtin{
 				return newMisfield("girlfriend se raat mei baat kar lena, pehle %d ki jagah 1 argument daal de", len(args))
 			}
 			switch arg := args[0].(type) {
+			case *object.Array:
+				return &object.String{Value: calculateArrayLength(arg)}
 			case *object.String:
 				return &object.String{Value: calculateLength(arg)}
 			default:
@@ -57,6 +59,17 @@ var builtins = map[string]*object.Builtin{
 
 func calculateLength(arg object.Object) string {
 	len := int(len(arg.(*object.String).Value))
+	if len == 7 {
+		return fmt.Sprintf("Thala for a reason: %d", len)
+	}
+	if findDigitSum(len) == 7 {
+		return fmt.Sprintf("Thala for a reason: %d", len)
+	}
+	return fmt.Sprintf("Captain Cool: %d", len)
+}
+
+func calculateArrayLength(arg object.Object) string {
+	len := int(len(arg.(*object.Array).Elements))
 	if len == 7 {
 		return fmt.Sprintf("Thala for a reason: %d", len)
 	}
