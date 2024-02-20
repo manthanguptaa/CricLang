@@ -40,6 +40,19 @@ var builtins = map[string]*object.Builtin{
 			return &object.String{}
 		},
 	},
+	"rohit": &object.Builtin{
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 1 {
+				return newMisfield("mera gale ka vaat lag gaya chilla chilla ke ki 1 argument chahiye! tunne %d de diye", len(args))
+			}
+			arg, ok := args[0].(*object.String)
+			if !ok {
+				return newMisfield("mera gale ka vaat lag gaya chilla chilla ke ki sahi type ka argument daal de")
+			}
+			fmt.Printf("Reporter: %s ke birthday ke baare mei kuch boliye.\n", arg.Value)
+			return &object.String{Value: "Rohit: Abhi birthday mei kya bola jata hai? Happy Birthday? Yahi bola jata hai."}
+		},
+	},
 }
 
 func calculateLength(arg object.Object) string {
