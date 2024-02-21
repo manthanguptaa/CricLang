@@ -44,5 +44,13 @@ z(x, y)
 ## Documentation
 Find the documentation for CricLang [here](https://manthanguptaa.in/posts/criclang/).
 
+## Reference
+https://medium.com/basecs/a-deeper-inspection-into-compilation-and-interpretation-d98952ebc842
+https://dev.to/cad97/what-is-a-lexer-anyway-4kdo
+https://inspirnathan.com/posts/165-abstract-syntax-trees-with-pratt-parser
+https://abarker.github.io/typped/pratt_parsing_intro.html
+https://dev.to/jrop/pratt-parsing
+https://interpreterbook.com/
+
 
 Made with love for 🏏 in 🇮🇳
