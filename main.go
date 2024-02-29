@@ -13,6 +13,6 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Welcome %s to CricLang: A toy programming language for cricket enthusiasts!\n", user.Username)
+	fmt.Printf("Welcome %s to CricLang: A fun programming language for cricket enthusiasts!\n", user.Username)
 	repl.Start(os.Stdin, os.Stdout)
 }
