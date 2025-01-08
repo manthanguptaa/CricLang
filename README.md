@@ -2,9 +2,6 @@
 
 https://github.com/manthanguptaa/CricLang/assets/42516515/2294f063-056b-439e-be8b-c6c73fd4b440
 
-IMPORTANT NOTE:
-If you are hiring for software engineers, then I am actively looking out. I am looking for companies working in the field of distributed systems, databases, cloud computing, audio/ video infrastructure, OTT platforms, fintech, or AI. If your team is pushing boundaries and working on something unique, I'd love to hear from you. Reach out to me at guptaamanthan01@gmail.com or via [Twitter DM](https://twitter.com/manthanguptaa).
-
 This is the official github repo of CricLang.
 
 CricLang is a fun dynamically typed language written in Go for cricket enthusiasts.
